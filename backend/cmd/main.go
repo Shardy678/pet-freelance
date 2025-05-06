@@ -12,7 +12,10 @@ import (
 )
 
 func main() {
-	_ = godotenv.Load()
+	err := godotenv.Load("./.env")
+	if err != nil {
+        log.Println("No .env file found, continuing...")
+    }
 
 	db.Init() 
 
