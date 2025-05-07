@@ -7,21 +7,19 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
-	"github.com/shardy678/pet-freelance/backend/internal/routes"
 	"github.com/shardy678/pet-freelance/backend/internal/db"
+	"github.com/shardy678/pet-freelance/backend/internal/routes"
 )
 
 func main() {
-	err := godotenv.Load("./.env")
-	if err != nil {
-        log.Println("No .env file found, continuing...")
-    }
+	if err := godotenv.Load("./.env"); err != nil {
+		log.Println("No .env file found, continuing with environment variables…")
+	}
 
-	db.Init() 
+	db.Init()
 
-	r := gin.Default()
-
-	routes.SetupRoutes(r)
+	router := gin.Default()
+	routes.SetupRoutes(router)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -29,7 +27,7 @@ func main() {
 	}
 
 	log.Printf("Server running on port %s", port)
-	if err := r.Run(":" + port); err != nil {
+	if err := router.Run(":" + port); err != nil {
 		log.Fatal(err)
 	}
 }

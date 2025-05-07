@@ -1,24 +1,38 @@
 package db
 
 import (
-	"fmt"
 	"log"
-	"os"
 
+	"github.com/shardy678/pet-freelance/backend/internal/config"
+	"github.com/shardy678/pet-freelance/backend/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
 
-func Init() {
-	dsn := os.Getenv("DATABASE_URL")
-	var err error
+func Connect(cfg *config.AppConfig) (*gorm.DB, error) {
+	return gorm.Open(postgres.Open(cfg.DSN), &gorm.Config{})
+}
 
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+func Init() {
+	// 1. Load config (DSN, JWT secret, etc)
+	cfg := config.Load()
+
+	// 2. Open the database
+	conn, err := gorm.Open(postgres.Open(cfg.DSN), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Fatalf("db.Init: failed to connect to database: %v", err)
 	}
 
-	fmt.Println("Connected to the database")
+	// 3. Auto-migrate your core models
+	if err := conn.AutoMigrate(
+		&models.User{},
+		// add future models here, e.g. &models.ServiceOffer{}, &models.Booking{}, …
+	); err != nil {
+		log.Fatalf("db.Init: auto-migrate failed: %v", err)
+	}
+
+	// 4. Assign to global
+	DB = conn
 }
