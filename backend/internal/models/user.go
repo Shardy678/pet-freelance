@@ -9,9 +9,9 @@ import (
 
 // User represents everyone: pet owners, freelancers, and admins.
 type User struct {
-	ID                 uuid.UUID      `gorm:"type:uuid;primaryKey"` // UUID generated in Go
+	ID                 uuid.UUID      `gorm:"type:uuid;primaryKey"`
 	Email              string         `gorm:"type:varchar(255);uniqueIndex;not null"`
-	PasswordHash       string         `gorm:"type:char(60);not null"`          // bcrypt(60) fits here
+	PasswordHash       string         `gorm:"type:char(60);not null"`
 	Phone              *string        `gorm:"type:varchar(20);uniqueIndex"`    // nullable
 	Role               string         `gorm:"type:varchar(20);index;not null"` // "freelancer" | "owner" | "admin"
 	ProfilePhotoURL    *string        `gorm:"type:text"`
@@ -19,10 +19,9 @@ type User struct {
 	IsTwoFactorEnabled bool           `gorm:"default:false"`
 	CreatedAt          time.Time      `gorm:"autoCreateTime"`
 	UpdatedAt          time.Time      `gorm:"autoUpdateTime"`
-	DeletedAt          gorm.DeletedAt `gorm:"index"` // optional soft‑delete
+	DeletedAt          gorm.DeletedAt `gorm:"index"`
 }
 
-// BeforeCreate will set a UUID rather than relying on a DB extension.
 func (u *User) BeforeCreate(tx *gorm.DB) error {
 	if u.ID == uuid.Nil {
 		u.ID = uuid.New()

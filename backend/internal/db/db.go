@@ -30,6 +30,7 @@ func Init() {
 		&models.User{},
 		&models.Service{},
 		&models.ServiceOffer{},
+		&models.AvailabilitySlot{},
 	); err != nil {
 		log.Fatalf("db.Init: auto-migrate failed: %v", err)
 	}
