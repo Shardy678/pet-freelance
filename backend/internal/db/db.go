@@ -28,7 +28,8 @@ func Init() {
 	// 3. Auto-migrate your core models
 	if err := conn.AutoMigrate(
 		&models.User{},
-		// add future models here, e.g. &models.ServiceOffer{}, &models.Booking{}, …
+		&models.Service{},
+		&models.ServiceOffer{},
 	); err != nil {
 		log.Fatalf("db.Init: auto-migrate failed: %v", err)
 	}

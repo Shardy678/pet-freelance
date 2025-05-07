@@ -19,17 +19,30 @@ func SetupRoutes(r *gin.Engine) {
 	authH := handlers.NewAuthHandler(authSvc)
 	profH := handlers.NewProfileHandler(userRepo)
 
+	offerRepo := repository.NewServiceOfferRepository(db.DB)
+	offerH := handlers.NewServiceOfferHandler(offerRepo)
+
+	serviceRepo := repository.NewServiceRepository(db.DB)
+	serviceSvc := service.NewServiceService(serviceRepo)
+	serviceH := handlers.NewServiceHandler(serviceSvc)
+
 	api := r.Group("/api")
 	{
 		api.GET("/health", handlers.HealthCheck)
 		api.GET("/hello", handlers.HelloWorld)
 		api.POST("/auth/register", authH.Register)
 		api.POST("/auth/login", authH.Login)
+		api.GET("/offers", offerH.List)
+		api.GET("/offers/:id", offerH.Get)
+		api.GET("/services", serviceH.List)
+		api.GET("/services/:id", serviceH.Get)
 
 		secure := api.Group("/")
 		secure.Use(middleware.JWT(cfg))
 		{
 			secure.GET("/profile/me", profH.Me)
+			secure.POST("/offers", offerH.Create)
+			secure.POST("/services", serviceH.Create)
 		}
 	}
 }
