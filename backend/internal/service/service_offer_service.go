@@ -31,3 +31,7 @@ func (s *ServiceOfferService) GetOffer(ctx context.Context, id uuid.UUID) (*mode
 func (s *ServiceOfferService) ListOffers(ctx context.Context) ([]models.ServiceOffer, error) {
 	return s.repo.ListAll(ctx)
 }
+
+func (s *ServiceOfferService) ListByService(ctx context.Context, serviceID uuid.UUID) ([]models.ServiceOffer, error) {
+	return s.repo.ListByService(ctx, serviceID)
+}

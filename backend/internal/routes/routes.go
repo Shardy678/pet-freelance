@@ -24,7 +24,8 @@ func SetupRoutes(r *gin.Engine) {
 	// Handlers
 	authH := handlers.NewAuthHandler(authSvc)
 	profH := handlers.NewProfileHandler(userRepo)
-	offerH := handlers.NewServiceOfferHandler(offerRepo)
+	offerSvc := service.NewServiceOfferService(offerRepo)
+	offerH := handlers.NewServiceOfferHandler(offerRepo, offerSvc)
 	serviceH := handlers.NewServiceHandler(service.NewServiceService(serviceRepo))
 	slotH := handlers.NewAvailabilitySlotHandler(service.NewAvailabilitySlotService(slotRepo))
 

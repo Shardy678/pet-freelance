@@ -9,14 +9,19 @@ import (
 
 	"github.com/shardy678/pet-freelance/backend/internal/models"
 	"github.com/shardy678/pet-freelance/backend/internal/repository"
+	"github.com/shardy678/pet-freelance/backend/internal/service"
 )
 
 type ServiceOfferHandler struct {
 	repo *repository.ServiceOfferRepository
+	svc  *service.ServiceOfferService
 }
 
-func NewServiceOfferHandler(r *repository.ServiceOfferRepository) *ServiceOfferHandler {
-	return &ServiceOfferHandler{repo: r}
+func NewServiceOfferHandler(
+	repo *repository.ServiceOfferRepository,
+	svc *service.ServiceOfferService,
+) *ServiceOfferHandler {
+	return &ServiceOfferHandler{repo: repo, svc: svc}
 }
 
 type createServiceOfferReq struct {
@@ -75,9 +80,26 @@ func (h *ServiceOfferHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, offer)
 }
 
-// List handles GET /offers
+// List handles GET /offers and supports optional ?service_id=…
 func (h *ServiceOfferHandler) List(c *gin.Context) {
-	offers, err := h.repo.ListAll(c.Request.Context())
+	// Check for an optional service_id query parameter
+	svcParam := c.Query("service_id")
+	var offers []models.ServiceOffer
+	var err error
+
+	if svcParam != "" {
+		// parse and fetch only those offers
+		svcID, parseErr := uuid.Parse(svcParam)
+		if parseErr != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid service_id"})
+			return
+		}
+		offers, err = h.svc.ListByService(c.Request.Context(), svcID)
+	} else {
+		// no filter → list all active offers
+		offers, err = h.svc.ListOffers(c.Request.Context())
+	}
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -104,4 +126,20 @@ func (h *ServiceOfferHandler) Get(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, offer)
+}
+
+// ListByService handles GET /services/:service_id/offers
+func (h *ServiceOfferHandler) ListByService(c *gin.Context) {
+	serviceID, err := uuid.Parse(c.Param("service_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid service_id"})
+		return
+	}
+
+	offers, err := h.svc.ListByService(c.Request.Context(), serviceID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, offers)
 }

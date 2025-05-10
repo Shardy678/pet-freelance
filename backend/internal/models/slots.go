@@ -8,14 +8,14 @@ import (
 )
 
 type AvailabilitySlot struct {
-	ID        uuid.UUID      `gorm:"type:uuid;primaryKey"`
-	OfferID   uuid.UUID      `gorm:"type:uuid;not null;index"` // FK → service_offers.id
-	StartTime time.Time      `gorm:"not null;index:idx_slot_time,priority:1"`
-	EndTime   time.Time      `gorm:"not null"`
-	IsBooked  bool           `gorm:"not null;default:false;index"`
-	CreatedAt time.Time      `gorm:"autoCreateTime"`
-	UpdatedAt time.Time      `gorm:"autoUpdateTime"`
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	ID        uuid.UUID      `gorm:"type:uuid;primaryKey" json:"id"`
+	OfferID   uuid.UUID      `gorm:"type:uuid;not null;index" json:"offerId"`
+	StartTime time.Time      `gorm:"not null;index:idx_slot_time,priority:1" json:"startTime"`
+	EndTime   time.Time      `gorm:"not null" json:"endTime"`
+	IsBooked  bool           `gorm:"not null;default:false;index" json:"isBooked"`
+	CreatedAt time.Time      `gorm:"autoCreateTime" json:"createdAt"`
+	UpdatedAt time.Time      `gorm:"autoUpdateTime" json:"updatedAt"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty"`
 }
 
 func (s *AvailabilitySlot) BeforeCreate(tx *gorm.DB) error {

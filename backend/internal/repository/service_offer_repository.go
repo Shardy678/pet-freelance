@@ -33,3 +33,12 @@ func (r *ServiceOfferRepository) ListAll(ctx context.Context) ([]models.ServiceO
 		Find(&list).Error
 	return list, err
 }
+
+func (r *ServiceOfferRepository) ListByService(ctx context.Context, serviceID any) ([]models.ServiceOffer, error) {
+	var list []models.ServiceOffer
+	err := r.db.WithContext(ctx).
+		Where("service_id = ? AND is_active = ?", serviceID, true).
+		Order("created_at DESC").
+		Find(&list).Error
+	return list, err
+}

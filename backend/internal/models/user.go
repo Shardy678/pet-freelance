@@ -7,19 +7,18 @@ import (
 	"gorm.io/gorm"
 )
 
-// User represents everyone: pet owners, freelancers, and admins.
 type User struct {
-	ID                 uuid.UUID      `gorm:"type:uuid;primaryKey"`
-	Email              string         `gorm:"type:varchar(255);uniqueIndex;not null"`
-	PasswordHash       string         `gorm:"type:char(60);not null"`
-	Phone              *string        `gorm:"type:varchar(20);uniqueIndex"`    // nullable
-	Role               string         `gorm:"type:varchar(20);index;not null"` // "freelancer" | "owner" | "admin"
-	ProfilePhotoURL    *string        `gorm:"type:text"`
-	IsEmailVerified    bool           `gorm:"default:false"`
-	IsTwoFactorEnabled bool           `gorm:"default:false"`
-	CreatedAt          time.Time      `gorm:"autoCreateTime"`
-	UpdatedAt          time.Time      `gorm:"autoUpdateTime"`
-	DeletedAt          gorm.DeletedAt `gorm:"index"`
+	ID                 uuid.UUID      `gorm:"type:uuid;primaryKey" json:"id"`
+	Email              string         `gorm:"type:varchar(255);uniqueIndex;not null" json:"email"`
+	PasswordHash       string         `gorm:"type:char(60);not null" json:"-"`
+	Phone              *string        `gorm:"type:varchar(20);uniqueIndex" json:"phone,omitempty"`
+	Role               string         `gorm:"type:varchar(20);index;not null" json:"role"`
+	ProfilePhotoURL    *string        `gorm:"type:text" json:"profilePhotoUrl,omitempty"`
+	IsEmailVerified    bool           `gorm:"default:false" json:"isEmailVerified"`
+	IsTwoFactorEnabled bool           `gorm:"default:false" json:"isTwoFactorEnabled"`
+	CreatedAt          time.Time      `gorm:"autoCreateTime" json:"createdAt"`
+	UpdatedAt          time.Time      `gorm:"autoUpdateTime" json:"updatedAt"`
+	DeletedAt          gorm.DeletedAt `gorm:"index" json:"deletedAt"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) error {
