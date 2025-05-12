@@ -8,6 +8,7 @@ import ProfilePage from './pages/ProfilePage';
 import ServicesPage from './pages/ServicesPage';
 import ServiceOffersPage from './pages/ServiceOffersPage';
 import ServiceDetailPage from './pages/ServiceDetailPage';
+import OfferDetailPage from './pages/OfferDetailPage';
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { token } = useContext(AuthContext);
@@ -24,6 +25,7 @@ function App() {
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/services" element={<ServicesPage />} />
       <Route path="/services/:id" element={<ServiceDetailPage />} />
+      <Route path="/offers/:id"  element={<OfferDetailPage />} />
 
 
     </Routes>

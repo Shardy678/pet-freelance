@@ -109,7 +109,7 @@ func (h *ServiceOfferHandler) List(c *gin.Context) {
 
 // Get handles GET /offers/:id
 func (h *ServiceOfferHandler) Get(c *gin.Context) {
-	idStr := c.Param("id")
+	idStr := c.Param("offer_id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid offer id"})
