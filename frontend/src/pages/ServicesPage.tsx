@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 
 type Service = {
   id: string;
@@ -47,21 +48,23 @@ export default function ServicesPage() {
       <h1 className="text-3xl font-bold mb-6">Available Services</h1>
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {data!.map((svc) => (
-          <Link
-            key={svc.id}
-            to={`/services/${svc.id}`}
-            className="block p-4 border rounded hover:shadow-lg transition"
-          >
-            <h2 className="text-xl font-semibold mb-2">{svc.name}</h2>
-            {svc.description && (
-              <p className="text-gray-600 mb-2 line-clamp-3">
-                {svc.description}
-              </p>
-            )}
-            <p className="text-sm text-gray-500">
-              From ${svc.basePrice.toFixed(2)} &mdash; {svc.defaultDurationMin} min
-            </p>
-          </Link>
+          <Card key={svc.id} className="hover:shadow-lg transition">
+            <Link to={`/services/${svc.id}`} className="block">
+              <CardHeader>
+                <CardTitle>{svc.name}</CardTitle>
+                {svc.description && (
+                  <CardDescription className="line-clamp-3">
+                    {svc.description}
+                  </CardDescription>
+                )}
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-500">
+                  From ${svc.basePrice.toFixed(2)} &mdash; {svc.defaultDurationMin} min
+                </p>
+              </CardContent>
+            </Link>
+          </Card>
         ))}
       </div>
     </div>
