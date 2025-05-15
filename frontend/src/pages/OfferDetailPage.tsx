@@ -240,7 +240,6 @@ export default function OfferDetailPage() {
                                     setSelectedSlot(slot)
                                     setModalOpen(true)
                                 }}
-                                disabled={bookSlot.status === 'loading'}
                                 className="border py-4 rounded text-center hover:bg-blue-50 disabled:opacity-50"
                             >
                                 {format(parseISO(slot.startTime), 'HH:mm')} –{' '}
@@ -281,12 +280,8 @@ export default function OfferDetailPage() {
                                         bookSlot.mutate(selectedSlot.id)
                                         setModalOpen(false)
                                     }}
-                                    disabled={bookSlot.status === 'loading'}
                                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
                                 >
-                                    {bookSlot.status === 'loading'
-                                        ? 'Booking…'
-                                        : 'Confirm Booking'}
                                 </button>
                             </div>
                         </div>
