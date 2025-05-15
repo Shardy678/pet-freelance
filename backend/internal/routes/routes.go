@@ -29,6 +29,10 @@ func SetupRoutes(r *gin.Engine) {
 	serviceH := handlers.NewServiceHandler(service.NewServiceService(serviceRepo))
 	slotH := handlers.NewAvailabilitySlotHandler(service.NewAvailabilitySlotService(slotRepo))
 
+	bookingRepo := repository.NewBookingRepository(db.DB)
+	bookingSvc := service.NewBookingService(bookingRepo, slotRepo, db.DB)
+	bookingH := handlers.NewBookingHandler(bookingSvc)
+
 	api := r.Group("/api")
 	{
 		api.GET("/health", handlers.HealthCheck)
@@ -45,6 +49,9 @@ func SetupRoutes(r *gin.Engine) {
 			secure.GET("/profile/me", profH.Me)
 			secure.POST("/offers", offerH.Create)
 			secure.POST("/services", serviceH.Create)
+			secure.POST("/bookings", bookingH.Create)
+			secure.GET("/bookings", bookingH.List)
+			secure.GET("/bookings/:id", bookingH.Get)
 		}
 
 		// Public services
