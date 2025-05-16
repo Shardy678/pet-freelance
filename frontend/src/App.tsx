@@ -6,6 +6,8 @@ import ServicesPage from './pages/ServicesPage';
 import ServiceDetailPage from './pages/ServiceDetailPage';
 import OfferDetailPage from './pages/OfferDetailPage';
 import Header from './components/Header';
+import BookingsPage from './pages/BookingsPage';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/services/:id" element={<ServiceDetailPage />} />
         <Route path="/offers/:id" element={<OfferDetailPage />} />
+        <Route path="/bookings" element={<BookingsPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </>
 

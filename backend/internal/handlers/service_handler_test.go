@@ -19,19 +19,15 @@ import (
 )
 
 func setupServiceRouter(t *testing.T) (*gin.Engine, *gorm.DB) {
-	// use Gin in test mode
 	gin.SetMode(gin.TestMode)
 	r := gin.Default()
 
-	// in-memory sqlite
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	assert.NoError(t, err)
 
-	// migrate only the Service model
 	err = db.AutoMigrate(&models.Service{})
 	assert.NoError(t, err)
 
-	// wire up
 	repo := repository.NewServiceRepository(db)
 	svc := service.NewServiceService(repo)
 	h := handlers.NewServiceHandler(svc)
@@ -46,8 +42,7 @@ func setupServiceRouter(t *testing.T) (*gin.Engine, *gorm.DB) {
 func TestCreateAndGetService(t *testing.T) {
 	router, _ := setupServiceRouter(t)
 
-	// 1) Create a new Service
-	payload := map[string]interface{}{
+	payload := map[string]any{
 		"name":                 "Grooming",
 		"description":          "Full-service pet grooming",
 		"base_price":           30.5,
@@ -68,7 +63,6 @@ func TestCreateAndGetService(t *testing.T) {
 	assert.Equal(t, 90, created.DefaultDurationMin)
 	assert.NotEqual(t, uuid.Nil, created.ID)
 
-	// 2) Get it back by ID
 	url := "/services/" + created.ID.String()
 	req2 := httptest.NewRequest(http.MethodGet, url, nil)
 	w2 := httptest.NewRecorder()
@@ -85,7 +79,6 @@ func TestCreateAndGetService(t *testing.T) {
 func TestListServices(t *testing.T) {
 	router, db := setupServiceRouter(t)
 
-	// seed two services
 	services := []models.Service{
 		{ID: uuid.New(), Name: "Walking", BasePrice: 10, DefaultDurationMin: 30},
 		{ID: uuid.New(), Name: "Training", BasePrice: 50, DefaultDurationMin: 60},
@@ -93,7 +86,6 @@ func TestListServices(t *testing.T) {
 	err := db.Create(&services).Error
 	assert.NoError(t, err)
 
-	// list
 	req := httptest.NewRequest(http.MethodGet, "/services", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -103,7 +95,6 @@ func TestListServices(t *testing.T) {
 	err = json.Unmarshal(w.Body.Bytes(), &list)
 	assert.NoError(t, err)
 	assert.Len(t, list, 2)
-	// since handler orders by name asc:
 	assert.Equal(t, "Training", list[0].Name)
 	assert.Equal(t, "Walking", list[1].Name)
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/shardy678/pet-freelance/backend/internal/models"
@@ -15,15 +16,17 @@ var ErrSlotAlreadyBooked = errors.New("slot already booked")
 type BookingService struct {
 	bookingRepo *repository.BookingRepository
 	slotRepo    *repository.AvailabilitySlotRepository
+	activitySvc *ActivityService
 	db          *gorm.DB
 }
 
 func NewBookingService(
 	bookingRepo *repository.BookingRepository,
 	slotRepo *repository.AvailabilitySlotRepository,
+	activitySvc *ActivityService,
 	db *gorm.DB,
 ) *BookingService {
-	return &BookingService{bookingRepo, slotRepo, db}
+	return &BookingService{bookingRepo, slotRepo, activitySvc, db}
 }
 
 // BookSlot reserves a slot and creates a booking within a single transaction.
@@ -33,8 +36,8 @@ func (s *BookingService) BookSlot(
 ) (*models.Booking, error) {
 	var booking *models.Booking
 
+	// 1) Transactionally reserve the slot & create booking
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		// 1. Load and lock the slot
 		slot, err := s.slotRepo.FindByID(ctx, slotID)
 		if err != nil {
 			return err
@@ -42,14 +45,10 @@ func (s *BookingService) BookSlot(
 		if slot.IsBooked {
 			return ErrSlotAlreadyBooked
 		}
-
-		// 2. Mark the slot as booked
 		slot.IsBooked = true
 		if err := s.slotRepo.Update(ctx, slot); err != nil {
 			return err
 		}
-
-		// 3. Create the booking record
 		booking = &models.Booking{
 			OfferID: offerID,
 			SlotID:  slotID,
@@ -59,11 +58,25 @@ func (s *BookingService) BookSlot(
 		if err := s.bookingRepo.Create(ctx, booking); err != nil {
 			return err
 		}
-
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
-	return booking, err
+	// 2) Emit a Recent-Activity record
+	timeStr := booking.CreatedAt.Format("Jan 2, 2006 at 15:04")
+	title := "Grooming appointment confirmed"
+	message := fmt.Sprintf(
+		"Your booking is confirmed for %s.",
+		timeStr,
+	)
+	// fire-and-forget
+	if emitErr := s.activitySvc.Emit(ctx, ownerID, title, message, "appointment"); emitErr != nil {
+		fmt.Printf("warning: could not emit activity: %v\n", emitErr)
+	}
+
+	return booking, nil
 }
 
 func (s *BookingService) GetBooking(ctx context.Context, id uuid.UUID) (*models.Booking, error) {

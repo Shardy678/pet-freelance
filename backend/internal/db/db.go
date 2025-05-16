@@ -32,10 +32,12 @@ func Init() {
 		&models.ServiceOffer{},
 		&models.AvailabilitySlot{},
 		&models.Booking{},
+		&models.Activity{},
 	); err != nil {
 		log.Fatalf("db.Init: auto-migrate failed: %v", err)
 	}
 
 	// 4. Assign to global
 	DB = conn
+
 }
